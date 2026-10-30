@@ -5,9 +5,13 @@ and other JetBrains IDEs. The plugin hosts the **Cline CLI TUI** in a docked sid
 panel so the code editor stays visible next to the agent — the familiar
 **file tree | code | agent** layout.
 
-Modelled on [OpenCode_UI_V2](../OpenCode_UI_V2), adapted to how Cline works: the
-CLI has no HTTP service to connect to, so the plugin reads Cline's own session
-store instead.
+> **Releases:** <https://github.com/logfournet/CLine_UI/releases>
+>
+> Latest: `CLine_UI-1.0.0.zip` (installable plugin)
+
+Modelled on [OpenCode_UI_V2](https://github.com/logfournet/OpenCode_UI_V2),
+adapted to how Cline works: the CLI has no HTTP service to connect to, so the
+plugin reads Cline's own session store instead.
 
 ---
 
