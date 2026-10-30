@@ -1,0 +1,137 @@
+<idea-plugin>
+    <id>ai.cline.ide.jetbrains</id>
+    <name>CLine UI</name>
+    <version>1.0.0</version>
+    <vendor url="https://cline.bot">Cline</vendor>
+
+    <description><![CDATA[
+      <p>CLine UI - Cline AI Coding Agent for JetBrains IDEs.</p>
+      <p>Hosts the <b>Cline CLI</b> (<code>cline</code> TUI) in a docked panel so
+      the code editor stays visible next to the agent
+      ("file tree | code | agent" layout):</p>
+      <ul>
+        <li>Click the <b>Cline</b> icon (or <code>Ctrl+Alt+C</code>) to open a
+            dedicated <b>Cline panel</b> on the right side running the Cline TUI
+            in a real terminal widget.</li>
+        <li>The TUI is launched in the project directory, so each IDE window
+            works on its own workspace.</li>
+        <li>Send files / selections to the agent with <code>Ctrl+Alt+K</code>
+            (<code>@path</code> / <code>@path#Lx-y</code> context).</li>
+        <li>Clickable <code>@path</code> and <code>path:line</code> links in the
+            terminal.</li>
+        <li>Turn tracking straight from Cline's own session store
+            (<code>~/.cline/data/sessions</code>): the status bar shows a spinner
+            while the agent works and a notification appears when a turn ends.</li>
+        <li>Native multi-file diff review with <b>Accept</b> / <b>Reject</b> for
+            everything Cline changed.</li>
+        <li>Local History labels (<i>Cline turn start</i> / <i>Cline turn
+            finished</i>) so every turn can be rolled back without VCS.</li>
+        <li>Tool window actions: New Task, Stop (Ctrl+C), Review Changes,
+            Copy Output, Toggle Plan/Act.</li>
+        <li>Settings (Settings &gt; Tools &gt; Cline): binary path, start mode
+            (Plan/Act), auto-approve, model / provider, extra CLI args and
+            terminal scrollback (unlimited by default).</li>
+      </ul>
+    ]]></description>
+
+    <change-notes><![CDATA[
+      <p>1.0.0 - First release. Docked Cline TUI panel, session discovery and turn
+      tracking from <code>~/.cline/data/sessions</code>, diff review with
+      Accept / Reject, Local History turn labels, send-code-to-agent actions,
+      clickable file links, status bar widget and per-project settings.</p>
+    ]]></change-notes>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>org.jetbrains.plugins.terminal</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Cline"
+                    anchor="right"
+                    icon="/icons/cline.svg"
+                    factoryClass="ai.cline.ide.jetbrains.ui.ClineToolWindowFactory"/>
+
+        <statusBarWidgetFactory id="ClineStatusBar"
+                                implementation="ai.cline.ide.jetbrains.ui.ClineStatusBarWidgetFactory"/>
+
+        <notificationGroup id="Cline" displayType="BALLOON"/>
+
+        <projectConfigurable instance="ai.cline.ide.jetbrains.ui.ClineSettingsConfigurable"
+                             displayName="Cline"
+                             id="ai.cline.ide.jetbrains.settings"
+                             parentId="tools"/>
+
+        <postStartupActivity implementation="ai.cline.ide.jetbrains.ui.ClineStartupActivity"/>
+    </extensions>
+
+    <actions>
+        <action id="Cline.QuickLaunch"
+                class="ai.cline.ide.jetbrains.actions.QuickLaunchAction"
+                text="Open Cline"
+                description="Open or focus the Cline panel"
+                icon="/icons/cline.svg">
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt C"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="alt meta C"/>
+            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="alt meta C"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+
+        <action id="Cline.AddLines"
+                class="ai.cline.ide.jetbrains.actions.SendSelectionToTerminalAction"
+                text="Add lines to Cline"
+                icon="/icons/cline.svg">
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt K"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="alt meta K"/>
+            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="alt meta K"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+        </action>
+
+        <action id="Cline.AddFile"
+                class="ai.cline.ide.jetbrains.actions.SendSelectionToTerminalAction"
+                text="Add to Cline"
+                icon="/icons/cline.svg">
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt K"/>
+            <keyboard-shortcut keymap="Mac OS X" first-keystroke="alt meta K"/>
+            <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="alt meta K"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
+        </action>
+
+        <action id="Cline.NewTask"
+                class="ai.cline.ide.jetbrains.actions.NewTaskAction"
+                text="Cline: New Task"
+                description="Clear the conversation and start a new Cline task">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+
+        <action id="Cline.Interrupt"
+                class="ai.cline.ide.jetbrains.actions.InterruptAction"
+                text="Cline: Stop"
+                description="Abort the running Cline turn (Ctrl+C)"/>
+
+        <action id="Cline.TogglePlanAct"
+                class="ai.cline.ide.jetbrains.actions.TogglePlanActAction"
+                text="Cline: Toggle Plan / Act"
+                description="Switch the Cline TUI between Plan and Act mode (Tab)"/>
+
+        <action id="Cline.ReviewChanges"
+                class="ai.cline.ide.jetbrains.actions.ReviewChangesAction"
+                text="Cline: Review Changes"
+                description="Show the diff of everything Cline changed">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+
+        <action id="Cline.CopyOutput"
+                class="ai.cline.ide.jetbrains.actions.CopyOutputAction"
+                text="Cline: Copy Output as Markdown"
+                description="Copy the whole Cline terminal output as a Markdown code block">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+
+        <group id="Cline.EditorActions"
+               class="ai.cline.ide.jetbrains.actions.ClineActionsGroup"
+               text="Cline"
+               description="Ask Cline about the selection"
+               popup="true">
+            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="Cline.AddLines"/>
+        </group>
+    </actions>
+</idea-plugin>

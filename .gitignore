@@ -1,0 +1,17 @@
+# Gradle
+.gradle/
+build/
+buildSrc/build/
+.intellijPlatform/
+
+# Built plugin artifacts
+dist/
+
+# IntelliJ
+.idea/
+*.iml
+out/
+.DS_Store
+
+# Sandbox IDE
+.run/
